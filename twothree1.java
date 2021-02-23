@@ -1,3 +1,12 @@
+import java.io.*;
+import java.util.*;
+
+/**
+* Basic Algorithms Programming Assignment 2
+* @author Lev Bernstein
+* Provided code: Node, InternalNode, LeafNode classes.
+*/
+
 
 class Node {
     String guide;
