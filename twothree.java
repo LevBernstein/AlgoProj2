@@ -43,7 +43,7 @@ class WorkSpace {
 
 public class twothree {
     
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception { // any method using BufferedWriter must be wrapped with throws Exception
         //All queries, incuding range updates(type 2 queries), should run in time O(logn).
         BufferedWriter output = new BufferedWriter(new OutputStreamWriter(System.out, "ASCII"), 4096);
         Scanner scan = new Scanner(System.in);
@@ -52,9 +52,8 @@ public class twothree {
         //1 planetName entranceFee = insert a planet with name planetName and entrance fee entranceFee into the database; 
         //2 planetName secondPlanet entranceFee = increase the entrance fee for all planets between planetName and secondPlanet by entranceFee
         //3 planetName = return the entrance fee for planetName
-        //Use regex for this maybe?
         int queries; //n <= 100000
-        int entranceFee; //0 <= entranceFee <= 10^5. Entrance fee will also always be less than 2^30.
+        int entranceFee; //0 <= delta(entranceFee) <= 10^5. Entrance fee will also always be less than 2^30.
         String planetName;
         String secondPlanet;
         String[] temp;
@@ -81,10 +80,20 @@ public class twothree {
         output.flush(); //flush System.out at the end of main
     }
     
+    static void addRange(Node p, String x, String y, int h, String lo, int delta, BufferedWriter output) throws Exception {
+        if (h == 0) && (p.guide.compareTo(x) >= 0 && p.guide.compareTo(y) <= 0) {
+            p.value += delta;
+            return;
+        }
+        
+        
+    }
+            
     static void insert(String key, int value, TwoThreeTree tree) {
         // insert a key value pair into tree (overwrite existing value if key is already present)
         
         int h = tree.height;
+        
         
         if (h == -1) { //for an empty tree:
             LeafNode newLeaf = new LeafNode();
@@ -191,7 +200,6 @@ public class twothree {
         }
     }
                                     
-                                    
     static int copyOutChildren(InternalNode q, Node[] x) {
         // copy children of q into x, and return # of children
         
@@ -212,7 +220,7 @@ public class twothree {
             x[i] = x[i-1];
         
         x[pos] = p;
-        }
+    }
     
     static boolean resetGuide(InternalNode q) {
         // reset q.guide, and return true if it changes.
@@ -225,7 +233,6 @@ public class twothree {
         
         return q.guide != oldGuide;
     }
-    
     
     static boolean resetChildren(InternalNode q, Node[] x, int pos, int sz) {
         // reset q's children to x[pos..pos+sz), where sz is 2 or 3.
