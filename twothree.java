@@ -72,7 +72,10 @@ public class twothree {
             else if (type == 2) {
                 secondPlanet = temp[2];
                 entranceFee = Integer.parseInt(temp[3]);
-                addRange(tree.root, planetName, secondPlanet, tree.height, "", entranceFee;
+                if (planetName.compareTo(secondPlanet) <= 0)
+                    addRange(tree.root, planetName, secondPlanet, tree.height, "", entranceFee);
+                else
+                    addRange(tree.root, secondPlanet, planetName, tree.height, "", entranceFee);
             }
             else if (type == 3) {
                 entranceFee = lookup(planetName, tree.root, 0);
