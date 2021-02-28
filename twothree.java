@@ -41,16 +41,16 @@ class WorkSpace {
 public class twothree {
     
     public static void main(String[] args) throws Exception { // any method using BufferedWriter must be wrapped with throws Exception
-        //All queries, incuding range updates(type 2 queries), should run in time O(logn).
+        // All queries, incuding range updates(type 2 queries), should run in time O(logn).
         BufferedWriter output = new BufferedWriter(new OutputStreamWriter(System.out, "ASCII"), 4096);
         Scanner scan = new Scanner(System.in);
         int type;
-        //Values for type:
-        //1 planetName entranceFee = insert a planet with name planetName and entrance fee entranceFee into the database; 
-        //2 planetName secondPlanet entranceFee = increase the entrance fee for all planets between planetName and secondPlanet by entranceFee
-        //3 planetName = return the entrance fee for planetName
-        int queries; //n <= 100000
-        int entranceFee; //0 <= delta(entranceFee) <= 10^5. Entrance fee will also always be less than 2^30.
+        // Values for type:
+        // 1 planetName entranceFee = insert a planet with name planetName and entrance fee entranceFee into the database; 
+        // 2 planetName secondPlanet entranceFee = increase the entrance fee for all planets between planetName and secondPlanet by entranceFee
+        // 3 planetName = return the entrance fee for planetName
+        int queries; // n <= 100000
+        int entranceFee; // 0 <= delta(entranceFee) <= 10^5. Entrance fee will also always be less than 2^30.
         String planetName;
         String secondPlanet;
         String[] temp;
@@ -61,7 +61,7 @@ public class twothree {
         for (int i = 0; i < queries; i++) {
             temp = scan.nextLine().split(" ");
             type = Integer.parseInt(temp[0]);
-            planetName = temp[1];
+            planetName = temp[1]; // every input type has planetName as the first term after the int denoting input type
             if (type == 1) {
                 entranceFee = Integer.parseInt(temp[2]);
                 insert(planetName, entranceFee, tree);
@@ -72,7 +72,7 @@ public class twothree {
                 if (planetName.compareTo(secondPlanet) <= 0)
                     addRange(tree.root, planetName, secondPlanet, tree.height, "", entranceFee);
                 else
-                    addRange(tree.root, secondPlanet, planetName, tree.height, "", entranceFee);
+                    addRange(tree.root, secondPlanet, planetName, tree.height, "", entranceFee); // if inputs are swapped (z a instead of a z), run addRange with secondPlanet first
             }
             else if (type == 3) {
                 entranceFee = lookup(planetName, tree.root, 0);
@@ -80,53 +80,56 @@ public class twothree {
             }
         }
         
-        output.flush(); //flush System.out at the end of main
+        output.flush(); // flush System.out at the end of main
     }
             
-    static int lookup(String target, Node p, int total) {
+    static int lookup(String target, Node p, int total) { // keep track of the cumulative value for the node we're searching for in 'total'
         if (p instanceof LeafNode) {
             if (target.compareTo(p.guide) == 0)
                 return total + p.value;
-            return -1;
+            return -1; // a miss, return -1
             }
         
-        InternalNode internal = (InternalNode) p;
+        InternalNode internal = (InternalNode) p; // only cast to InternalNode once we're sure p isn't a leaf node
         if (target.compareTo(internal.child0.guide) <= 0)
-            return lookup(target, internal.child0, total + internal.value);
+            return lookup(target, internal.child0, total + internal.value); //explore left subtree
         if (target.compareTo(internal.child0.guide) > 0 && target.compareTo(internal.child1.guide) <= 0)
-            return lookup(target, internal.child1, total + internal.value);
+            return lookup(target, internal.child1, total + internal.value); //explore middle/right subtree
         if (internal.child2 != null && target.compareTo(internal.child1.guide) > 0)
-            return lookup(target, internal.child2, total + internal.value);
-        return -1;
+            return lookup(target, internal.child2, total + internal.value); //explore right subtree
+        
+        return -1; // something has gone wrong, some kind of other miss, so return -1
     }
     
-    static void addRange(Node p, String x, String y, int h, String lo, int delta) {
+    static void addRange(Node p, String x, String y, int h, String lo, int delta) { 
+        // basically the same as printRange from the last assignment, but with some minor changes
         if (h == 0) {
             if (p.guide.compareTo(x) >= 0 && p.guide.compareTo(y) <= 0) {
-                p.value += delta;
+                p.value += delta; // inside the desired search path, so increment value by the change
             }
-            return;
+            return; // if we're at a leaf node, return no matter what
         }
-        if (y.compareTo(lo) <= 0)
+        if (y.compareTo(lo) <= 0) // outside the desired search path, so return
             return;
         String hi = p.guide;
-        if (hi.compareTo(x) < 0)
+        if (hi.compareTo(x) < 0) // outside the desired search path, so return
             return;
         if (x.compareTo(lo) <= 0 && hi.compareTo(y) <= 0) {
-            p.value += delta;
+            p.value += delta; // inside the desired search path, so increment value by the change
             return;
         }
         InternalNode internal = (InternalNode) p; // must cast to an internal node in order to access child0, child1, child2
+        // then run addRange on p's children
         addRange(internal.child0, x, y, h - 1, lo, delta);
         addRange(internal.child1, x, y, h - 1, internal.child0.guide, delta);
-        if (internal.child2 != null)
+        if (internal.child2 != null) // if the node has a third child:
             addRange(internal.child2, x, y, h - 1, internal.child1.guide, delta);
     }
             
     static void insert(String key, int value, TwoThreeTree tree) {
         // insert a key value pair into tree (overwrite existing value if key is already present)
         int h = tree.height;
-        if (h == -1) { //for an empty tree:
+        if (h == -1) { // for an empty tree:
             LeafNode newLeaf = new LeafNode();
             newLeaf.guide = key;
             newLeaf.value = value;
@@ -181,7 +184,7 @@ public class twothree {
             int pos;
             WorkSpace ws;
             
-            //new logic for shifted value, zeroing out:
+            //new logic for shifted value, zeroing out, lazy update:
             q.child0.value += q.value;
             q.child1.value += q.value;
             if (q.child2 != null)
